@@ -1,0 +1,16 @@
+name q03_key_float64
+group grouped_first_last
+
+load sql_benchmarks/grouped_first_last/init/load.sql
+
+expect_plan AggregateExec
+
+run
+-- Axis: Float64 key, same rows as q01.
+SELECT count(*) AS groups, sum(v) AS checksum FROM (
+  SELECT last_value(x ORDER BY CAST(k AS DOUBLE)) AS v FROM first_last GROUP BY g
+);
+
+result sql_benchmarks/grouped_first_last/results/q03_key_float64.csv
+
+cleanup sql_benchmarks/grouped_first_last/init/cleanup.sql

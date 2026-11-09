@@ -20,6 +20,7 @@ in the community:
 | `clickbench`          | ClickBench benchmark                                               |
 | `clickbench extended` | 12 additional, more complex queries against the Clickbench dataset |
 | `clickbench_sorted`   | ClickBench benchmark using a pre-sorted hits file.                 |
+| `grouped_first_last`  | Grouped `first_value` / `last_value` with `ORDER BY`, the shape engines use for `min_by` / `max_by`. Each query changes one axis of `q01` (`rows / 10` interleaved groups, `Int64` key and value, `last_value`, one aggregate): group count, key type, or four aggregates. `q07` is `q02` with input already sorted on the `ORDER BY` key, the only query on the pre-ordered path. Rows come from `range()`, sized by `FIRST_LAST_ROWS` (default `50000000`); the checksums under `grouped_first_last/results/` hold for that default, so `--result-mode validate` checks that a change picks the same rows. |
 | `h2o`                 | The `h2o` benchmark                                                |
 | `hj`                  | Hash join benchmark                                                |
 | `imdb`                | IMDb benchmark                                                     |
@@ -190,6 +191,7 @@ Some benchmarks use custom environment variables as outlined below:
 | PRED_FILL                    | Used in the predicate_eval benchmark as the string-column width knob (filler chars per marker).                          | `30`          |
 | RG_SIZE                      | Used in the parquet_row_filter_skip benchmark as the Parquet `max_row_group_size` for the generated datasets.            | `1000000`     |
 | PSQ_ROWS                     | Used in the projection_subquery benchmark to size the two inline tables.                                                 | `30000`       |
+| FIRST_LAST_ROWS              | Used in the grouped_first_last benchmark as the input rows per query.                                                    | `50000000`    |
 | SPILL_VIEWS_LIMIT_REPEATED   | Used in the spill_views benchmark as the memory limit of the `repeated` subgroup.                                        | `40M`         |
 | SPILL_VIEWS_LIMIT_DISTINCT   | Used in the spill_views benchmark as the memory limit of the `distinct` subgroup.                                        | `96M`         |
 

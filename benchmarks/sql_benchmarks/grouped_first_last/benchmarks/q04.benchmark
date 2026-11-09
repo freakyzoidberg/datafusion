@@ -1,0 +1,16 @@
+name q04_key_timestamp_tz
+group grouped_first_last
+
+load sql_benchmarks/grouped_first_last/init/load.sql
+
+expect_plan AggregateExec
+
+run
+-- Axis: Timestamp(Microsecond, "UTC") key, same rows as q01.
+SELECT count(*) AS groups, sum(v) AS checksum FROM (
+  SELECT last_value(x ORDER BY arrow_cast(k, 'Timestamp(Microsecond, Some("UTC"))')) AS v FROM first_last GROUP BY g
+);
+
+result sql_benchmarks/grouped_first_last/results/q04_key_timestamp_tz.csv
+
+cleanup sql_benchmarks/grouped_first_last/init/cleanup.sql

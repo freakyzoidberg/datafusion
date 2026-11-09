@@ -1,0 +1,16 @@
+name q05_key_utf8
+group grouped_first_last
+
+load sql_benchmarks/grouped_first_last/init/load.sql
+
+expect_plan AggregateExec
+
+run
+-- Axis: Utf8 key, zero-padded so it sorts like k: same rows as q01.
+SELECT count(*) AS groups, sum(v) AS checksum FROM (
+  SELECT last_value(x ORDER BY lpad(arrow_cast(k, 'Utf8'), 19, '0')) AS v FROM first_last GROUP BY g
+);
+
+result sql_benchmarks/grouped_first_last/results/q05_key_utf8.csv
+
+cleanup sql_benchmarks/grouped_first_last/init/cleanup.sql

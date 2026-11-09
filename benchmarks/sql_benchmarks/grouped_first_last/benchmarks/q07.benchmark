@@ -1,0 +1,17 @@
+name q07_pre_ordered
+group grouped_first_last
+
+load sql_benchmarks/grouped_first_last/init/load.sql
+
+expect_plan last_value(first_last.x) ORDER BY [first_last.seq ASC NULLS LAST]
+
+run
+-- Axis: as q02, but ordered by seq, which range() declares sorted. The optimizer proves it and
+-- runs last_value(x ORDER BY seq) on the pre-ordered path, which expect_plan checks.
+SELECT count(*) AS groups, sum(v) AS checksum FROM (
+  SELECT first_value(x ORDER BY seq DESC) AS v FROM first_last GROUP BY g1k
+);
+
+result sql_benchmarks/grouped_first_last/results/q07_pre_ordered.csv
+
+cleanup sql_benchmarks/grouped_first_last/init/cleanup.sql

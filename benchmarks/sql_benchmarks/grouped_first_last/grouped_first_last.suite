@@ -1,0 +1,17 @@
+description = "Grouped first_value / last_value with ORDER BY, the shape engines use for min_by / max_by. Each query changes one axis of a reference query: group count, ORDER BY key type, number of aggregates, or input already sorted on the ORDER BY key. Rows come from range() and each query returns an integer checksum of its groups, so --result-mode validate compares implementations."
+
+[[options]]
+name = "rows"
+short = "r"
+env = "FIRST_LAST_ROWS"
+default = "50000000"
+values = ["50000000", "..."]
+help = "Input rows per query; most queries group them into rows / 10 groups. The checked-in results hold for the default."
+
+[[examples]]
+command = "cargo run --release --bin benchmark_runner -- grouped_first_last"
+description = "Run every query at the default 50,000,000 rows."
+
+[[examples]]
+command = "cargo run --release --bin benchmark_runner -- grouped_first_last --query 6 --result-mode validate"
+description = "Run the four-aggregate min_by / max_by shape and check its checksum."

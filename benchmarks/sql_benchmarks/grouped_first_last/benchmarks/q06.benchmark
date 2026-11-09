@@ -1,0 +1,23 @@
+name q06_min_max_by
+group grouped_first_last
+
+load sql_benchmarks/grouped_first_last/init/load.sql
+
+expect_plan AggregateExec
+
+run
+-- Axis: four ordered aggregates on two keys plus min / max: min_by(v, key) and max_by(v, key)
+-- rewritten as last_value(v ORDER BY key DESC / ASC NULLS LAST). b picks the same rows as q01.
+SELECT count(*) AS groups, sum(a) AS a, sum(b) AS b, sum(c) AS c, sum(d) AS d, sum(e) AS e FROM (
+  SELECT
+    last_value(x ORDER BY k DESC NULLS LAST) AS a,
+    last_value(x ORDER BY k ASC NULLS LAST) AS b,
+    last_value(k ORDER BY x DESC NULLS LAST) AS c,
+    last_value(k ORDER BY x ASC NULLS LAST) AS d,
+    min(x) + max(x) AS e
+  FROM first_last GROUP BY g
+);
+
+result sql_benchmarks/grouped_first_last/results/q06_min_max_by.csv
+
+cleanup sql_benchmarks/grouped_first_last/init/cleanup.sql

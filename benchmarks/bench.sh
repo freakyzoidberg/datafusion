@@ -164,6 +164,8 @@ smj:                    Benchmark for simple sort merge joins, testing various j
 dict:                   Benchmark for dictionary-encoded group-by scenarios
 array_agg_distinct:     1000K-group, two-row-per-group array_agg(DISTINCT) benchmark
 grouped_count_distinct: Grouped count(DISTINCT) by key type, group count and distinct cardinality
+grouped_first_last:     Grouped first_value / last_value with ORDER BY (the min_by / max_by shape) by group count and key type
+                          (data generated inline from range(); knob: FIRST_LAST_ROWS)
 compile_profile:        Compile and execute TPC-H across selected Cargo profiles, reporting timing and binary size
 
 
@@ -283,6 +285,10 @@ main() {
                     ;;
                 grouped_count_distinct)
                     echo "grouped_count_distinct: no external data to generate"
+                    ;;
+                grouped_first_last)
+                    # Data is generated inline by the suite's view over range().
+                    echo "grouped_first_last: no external data to generate"
                     ;;
                 asof_join)
                     data_asof_join
@@ -687,6 +693,9 @@ main() {
                     ;;
                 grouped_count_distinct)
                     run_grouped_count_distinct
+                    ;;
+                grouped_first_last)
+                    run_grouped_first_last
                     ;;
                 compile_profile)
                     run_compile_profile "${PROFILE_ARGS[@]}"
@@ -1825,6 +1834,17 @@ run_grouped_count_distinct() {
     debug_run env BENCH_NAME=grouped_count_distinct \
       BENCH_RESULTS_FILE="$(sql_results_file grouped_count_distinct)" \
       GROUPED_DISTINCT_ROWS="${GROUPED_DISTINCT_ROWS:-4000000}" \
+      ${QUERY:+BENCH_QUERY="${QUERY}"} \
+      bash -c "$SQL_CARGO_COMMAND"
+}
+
+# Runs grouped first_value / last_value with ORDER BY over range(); the checked-in
+# results hold for the default FIRST_LAST_ROWS.
+run_grouped_first_last() {
+    echo "Running grouped_first_last benchmark (rows=${FIRST_LAST_ROWS:-50000000})..."
+    debug_run env BENCH_NAME=grouped_first_last \
+      BENCH_RESULTS_FILE="$(sql_results_file grouped_first_last)" \
+      FIRST_LAST_ROWS="${FIRST_LAST_ROWS:-50000000}" \
       ${QUERY:+BENCH_QUERY="${QUERY}"} \
       bash -c "$SQL_CARGO_COMMAND"
 }

@@ -1,0 +1,16 @@
+name q02_groups_1k
+group grouped_first_last
+
+load sql_benchmarks/grouped_first_last/init/load.sql
+
+expect_plan AggregateExec
+
+run
+-- Axis: 1000 groups instead of rows / 10.
+SELECT count(*) AS groups, sum(v) AS checksum FROM (
+  SELECT last_value(x ORDER BY k) AS v FROM first_last GROUP BY g1k
+);
+
+result sql_benchmarks/grouped_first_last/results/q02_groups_1k.csv
+
+cleanup sql_benchmarks/grouped_first_last/init/cleanup.sql

@@ -1,0 +1,16 @@
+name q01_baseline
+group grouped_first_last
+
+load sql_benchmarks/grouped_first_last/init/load.sql
+
+expect_plan AggregateExec
+
+run
+-- Reference: rows / 10 interleaved groups, Int64 key and value, last_value, one aggregate.
+SELECT count(*) AS groups, sum(v) AS checksum FROM (
+  SELECT last_value(x ORDER BY k) AS v FROM first_last GROUP BY g
+);
+
+result sql_benchmarks/grouped_first_last/results/q01_baseline.csv
+
+cleanup sql_benchmarks/grouped_first_last/init/cleanup.sql
