@@ -246,6 +246,21 @@ fn criterion_benchmark(c: &mut Criterion) {
         })
     });
 
+    c.bench_function("first_last_timestamp_utc_mid_groups", |b| {
+        b.iter(|| {
+            query(
+                ctx.clone(),
+                &rt,
+                "SELECT first_value(u64_wide order by ts), \
+                            last_value(u64_wide order by ts)   \
+                FROM (SELECT u64_wide, u64_mid, \
+                      arrow_cast(CAST(f64 * 1000000 AS BIGINT), 'Timestamp(Microsecond, Some(\"UTC\"))') AS ts \
+                      FROM t) \
+                GROUP BY u64_mid",
+            )
+        })
+    });
+
     c.bench_function("array_agg_query_group_by_few_groups", |b| {
         b.iter(|| {
             query(
