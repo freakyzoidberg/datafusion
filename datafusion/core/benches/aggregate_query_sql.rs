@@ -246,6 +246,18 @@ fn criterion_benchmark(c: &mut Criterion) {
         })
     });
 
+    c.bench_function("first_last_one_column_many_groups", |b| {
+        b.iter(|| {
+            query(
+                ctx.clone(),
+                &rt,
+                "SELECT first_value(u64_mid order by f64), \
+                            last_value(u64_mid order by f64)   \
+                FROM t GROUP BY u64_wide",
+            )
+        })
+    });
+
     c.bench_function("array_agg_query_group_by_few_groups", |b| {
         b.iter(|| {
             query(
